@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -58,9 +60,18 @@ public class UserControllerTest {
 		assertThat(response.getBody().getMessage()).isNotNull();
 	}
 
+	@Test
+	public void cadastrarUsuario_QuandoValido_criaHashPassword() {
+		User user = createUser();
+		testRestTemplate.postForEntity(API_USER, user, Object.class);
+		List<User> users = userRepository.findAll();
+		User inDB = users.get(0);
+		assertThat(inDB.getPassword()).isNotEqualTo(user.getPassword());
+	}
+
 	private User createUser() {
 		User user = new User();
-		user.setUserName("user");
+		user.setUsername("user");
 		user.setDisplayName("display");
 		user.setPassword("password");
 		return user;

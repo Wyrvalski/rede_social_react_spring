@@ -13,7 +13,7 @@ public class User {
     @Id
     @GeneratedValue
     private long id;
-    private String userName;
+    private String username;
     private String displayName;
     private String password;
 }
