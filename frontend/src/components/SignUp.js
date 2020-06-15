@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SignUp = () => {
+const SignUp = (props) => {
   const [formData, setformData] = useState({
     name: '',
     username: '',
@@ -12,6 +12,15 @@ const SignUp = () => {
 
   const onChangeFormData = (e) => {
     setformData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const onClick = (e) => {
+    const user = {
+      name: name,
+      username: username,
+      password: password
+    }
+    props.actions.postSignup(user);
   };
 
   return (
@@ -45,14 +54,28 @@ const SignUp = () => {
         />
       </div>
       <div>
-        <input type='password' placeholder='Confirmar senha' name='confirmPassword' value={confirmPassword}
-          onChange={(e) => onChangeFormData(e)}/>
+        <input
+          type='password'
+          placeholder='Confirmar senha'
+          name='confirmPassword'
+          value={confirmPassword}
+          onChange={(e) => onChangeFormData(e)}
+        />
       </div>
       <div>
-        <button>Enviar</button>
+        <button onClick={(e) => onClick(e)}>Enviar</button>
       </div>
     </div>
   );
+};
+
+SignUp.defaultProps = {
+  actions: {
+    postSignup: () =>
+      new Promise((resolve, reject) => {
+        resolve({});
+      })
+  }
 };
 
 export default SignUp;

@@ -48,14 +48,33 @@ describe('SignUp', () => {
   });
   describe('intereções', () => {
     const changeEvent = (content) => {
-      console.log(content);
-      
-        return {
+      return {
         target: {
           value: content
         }
       };
     };
+
+    let button, name, username, password, passwordRepeat;
+
+    const setupForSubmit = (props) => {
+      const { container, queryByPlaceholderText } = render(
+        <SignUp {...props} />
+      );
+
+      name = queryByPlaceholderText('Nome');
+      username = queryByPlaceholderText('Usuario');
+      password = queryByPlaceholderText('Senha');
+      passwordRepeat = queryByPlaceholderText('Confirmar senha');
+
+      fireEvent.change(name, changeEvent('Nome'));
+      fireEvent.change(username, changeEvent('Usuario'));
+      fireEvent.change(password, changeEvent('senha'));
+      fireEvent.change(passwordRepeat, changeEvent('senha'));
+
+      button = container.querySelector('button');
+    };
+
     it('Deve enviar o input nome para detro do state', () => {
       const { queryByPlaceholderText } = render(<SignUp />);
       const displayInput = queryByPlaceholderText('Nome');
@@ -88,6 +107,27 @@ describe('SignUp', () => {
       fireEvent.change(displayInput, changeEvent('confirmar-senha-no-input'));
 
       expect(displayInput).toHaveValue('confirmar-senha-no-input');
+    });
+    it('Deve chamar funçÃo post se estiver valido os dados do formulário', () => {
+      const actions = {
+        postSignup: jest.fn().mockResolvedValueOnce({})
+      };
+
+      setupForSubmit({ actions });
+
+      fireEvent.click(button);
+      const user = {
+        name: 'Nome',
+        username: 'Usuario',
+        password: 'senha'
+      };
+      expect(actions.postSignup).toHaveBeenCalledWith(user);
+    });
+
+    it('Deve chamar um erro de excessão quando não validar', () => {
+      setupForSubmit();
+
+      expect(() => fireEvent.click(button)).not.toThrow();
     });
   });
 });
