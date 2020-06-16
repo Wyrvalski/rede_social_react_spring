@@ -72,7 +72,7 @@ public class UserControllerTest {
 	private User createUser() {
 		User user = new User();
 		user.setUsername("user");
-		user.setDisplayName("display");
+		user.setName("display");
 		user.setPassword("password");
 		return user;
 	}

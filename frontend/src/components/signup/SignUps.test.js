@@ -2,46 +2,79 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import SignUp from './SignUp';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 describe('SignUp', () => {
   describe('Layout', () => {
     it('Deve existir o componente', () => {
-      const { container } = render(<SignUp />);
+      const { container } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const header = container.querySelector('h1');
-      expect(header).toHaveTextContent('Sign Up');
+      expect(header).toHaveTextContent('Cadastro');
     });
     it('input para enviar com placeholder "Nome"', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Nome');
       expect(displayInput).toBeInTheDocument();
     });
     it('input para enviar com placeholder "Usuario"', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Usuario');
       expect(displayInput).toBeInTheDocument();
     });
     it('input para enviar com placeholder "Senha"', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Senha');
       expect(displayInput).toBeInTheDocument();
     });
     it('input do tipo "Senha"', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Senha');
       expect(displayInput.type).toBe('password');
     });
     it('input para enviar com placeholder "Confirmar senha"', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Confirmar senha');
       expect(displayInput).toBeInTheDocument();
     });
     it('input do tipo "Senha"', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Confirmar senha');
       expect(displayInput.type).toBe('password');
     });
     it('Deve existir o botão de enviar', () => {
-      const { container } = render(<SignUp />);
+      const { container } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const header = container.querySelector('button');
       expect(header).toHaveTextContent('Enviar');
     });
@@ -59,7 +92,9 @@ describe('SignUp', () => {
 
     const setupForSubmit = (props) => {
       const { container, queryByPlaceholderText } = render(
-        <SignUp {...props} />
+        <Router>
+          <SignUp {...props} />
+        </Router>
       );
 
       name = queryByPlaceholderText('Nome');
@@ -76,7 +111,11 @@ describe('SignUp', () => {
     };
 
     it('Deve enviar o input nome para detro do state', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Nome');
 
       fireEvent.change(displayInput, changeEvent('nome-no-input'));
@@ -84,7 +123,11 @@ describe('SignUp', () => {
       expect(displayInput).toHaveValue('nome-no-input');
     });
     it('Deve enviar o input Usuario para detro do state', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Usuario');
 
       fireEvent.change(displayInput, changeEvent('username-no-input'));
@@ -93,7 +136,11 @@ describe('SignUp', () => {
     });
 
     it('Deve enviar o input Senha para detro do state', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Senha');
 
       fireEvent.change(displayInput, changeEvent('senha-no-input'));
@@ -101,7 +148,11 @@ describe('SignUp', () => {
       expect(displayInput).toHaveValue('senha-no-input');
     });
     it('Deve enviar o input Confirmar senha para detro do state', () => {
-      const { queryByPlaceholderText } = render(<SignUp />);
+      const { queryByPlaceholderText } = render(
+        <Router>
+          <SignUp />
+        </Router>
+      );
       const displayInput = queryByPlaceholderText('Confirmar senha');
 
       fireEvent.change(displayInput, changeEvent('confirmar-senha-no-input'));

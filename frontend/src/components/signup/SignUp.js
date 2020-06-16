@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'
+import { Box, Form } from './style';
 
-const SignUp = (props) => {
+const SignUp = (props) => {  
   const [formData, setformData] = useState({
     name: '',
     username: '',
@@ -19,14 +21,15 @@ const SignUp = (props) => {
       name: name,
       username: username,
       password: password
-    }
+    };
+    e.preventDefault();
     props.actions.postSignup(user);
   };
 
   return (
-    <div>
-      <h1>Sign Up</h1>
-      <div>
+    <Box m={3}>
+      <h1>Cadastro</h1>
+      <Form>
         <input
           type='text'
           name='name'
@@ -34,8 +37,7 @@ const SignUp = (props) => {
           value={name}
           onChange={(e) => onChangeFormData(e)}
         />
-      </div>
-      <div>
+
         <input
           type='text'
           placeholder='Usuario'
@@ -43,8 +45,6 @@ const SignUp = (props) => {
           value={username}
           onChange={(e) => onChangeFormData(e)}
         />
-      </div>
-      <div>
         <input
           type='password'
           placeholder='Senha'
@@ -52,8 +52,6 @@ const SignUp = (props) => {
           value={password}
           onChange={(e) => onChangeFormData(e)}
         />
-      </div>
-      <div>
         <input
           type='password'
           placeholder='Confirmar senha'
@@ -61,11 +59,12 @@ const SignUp = (props) => {
           value={confirmPassword}
           onChange={(e) => onChangeFormData(e)}
         />
-      </div>
-      <div>
-        <button onClick={(e) => onClick(e)}>Enviar</button>
-      </div>
-    </div>
+        <div>
+          <small>Já tem conta cadastrada? <Link to="/#">Logar</Link> </small>
+          <button onClick={(e) => onClick(e)}>Enviar</button>
+        </div>
+      </Form>
+    </Box>
   );
 };
 
