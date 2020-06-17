@@ -17,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -39,7 +41,7 @@ public class UserControllerTest {
 	@Test
 	public void cadastrarUsuario_QuandoValido_SalvarNoBanco() {
 		User user = createUser();
-		testRestTemplate.postForEntity(API_USER, user, Object.class);
+		postSignup(user, GenericResponse.class);
 		assertThat(userRepository.count()).isEqualTo(1);
 	}
 
@@ -47,7 +49,7 @@ public class UserControllerTest {
 	public void cadastrarUsuario_QuandoValido_ReceberOk() {
 		User user = createUser();
 
-		ResponseEntity<Object> response = testRestTemplate.postForEntity(API_USER, user, Object.class);
+		ResponseEntity<Object> response = postSignup(user, Object.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
@@ -56,7 +58,7 @@ public class UserControllerTest {
 	public void cadastrarUsuario_QuandoValido_ReceberSucesso() {
 		User user = createUser();
 
-		ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_USER, user, GenericResponse.class);
+		ResponseEntity<GenericResponse> response = postSignup(user, GenericResponse.class);
 		assertThat(response.getBody().getMessage()).isNotNull();
 	}
 
@@ -69,11 +71,98 @@ public class UserControllerTest {
 		assertThat(inDB.getPassword()).isNotEqualTo(user.getPassword());
 	}
 
+	@Test
+	public void cadastrarUsuario_quandoForNull_receberBadRequest() {
+		User user = createUser();
+		user.setUsername(null);
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarNome_quandoForNull_receberBadRequest() {
+		User user = createUser();
+		user.setName(null);
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarSenha_quandoForNull_receberBadRequest() {
+		User user = createUser();
+		user.setPassword(null);
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarUsuario_quandoForMenorQue3Characteres_receberBadRequest() {
+		User user = createUser();
+		user.setUsername("edu");
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarNome_quandoForMenorQue3Characteres_receberBadRequest() {
+		User user = createUser();
+		user.setName("edu");
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarSenha_quandoForSoletrasMinusculas_receberBadRequest() {
+		User user = createUser();
+		user.setPassword("senhas");
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarSenha_quandoForSoletrasMaiusculas_receberBadRequest() {
+		User user = createUser();
+		user.setPassword("SENHAS");
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarUsuario_quandoUsuarioTiverMaisQueOLimiteDeCaracteres_receberBadRequest() {
+		User user = createUser();
+		String valueOf101Chars = IntStream.rangeClosed(1,101).mapToObj(x -> "a").collect(Collectors.joining());
+		user.setUsername(valueOf101Chars);
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarNome_quandoUsuarioTiverMaisQueOLimiteDeCaracteres_receberBadRequest() {
+		User user = createUser();
+		String valueOf101Chars = IntStream.rangeClosed(1,101).mapToObj(x -> "a").collect(Collectors.joining());
+		user.setName(valueOf101Chars);
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	public void cadastrarSenha_quandoSenhaoTiverMaisQueOLimiteDeCaracteres_receberBadRequest() {
+		User user = createUser();
+		String valueOf101Chars = IntStream.rangeClosed(1,101).mapToObj(x -> "a").collect(Collectors.joining());
+		user.setPassword(valueOf101Chars + "A1");
+		ResponseEntity<Object> response = postSignup(user, Object.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
+		return testRestTemplate.postForEntity(API_USER, request, response);
+	}
+
 	private User createUser() {
 		User user = new User();
 		user.setUsername("user");
 		user.setName("display");
-		user.setPassword("password");
+		user.setPassword("Casa@2417");
 		return user;
 	}
 }
