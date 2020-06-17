@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitForDomChange } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import SignUp from './SignUp';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -91,11 +91,13 @@ describe('SignUp', () => {
     let button, name, username, password, passwordRepeat;
 
     const setupForSubmit = (props) => {
-      const { container, queryByPlaceholderText } = render(
+      const rendered = render(
         <Router>
           <SignUp {...props} />
         </Router>
       );
+
+      const { container, queryByPlaceholderText } = rendered;
 
       name = queryByPlaceholderText('Nome');
       username = queryByPlaceholderText('Usuario');
@@ -108,6 +110,17 @@ describe('SignUp', () => {
       fireEvent.change(passwordRepeat, changeEvent('senha'));
 
       button = container.querySelector('button');
+      return rendered;
+    };
+
+    const mockAsyncDelayed = () => {
+      return jest.fn().mockImplementation(() => {
+        return new Promise((res, rej) => {
+          setTimeout(() => {
+            res({});
+          }, 300);
+        });
+      });
     };
 
     it('Deve enviar o input nome para detro do state', () => {
@@ -180,5 +193,78 @@ describe('SignUp', () => {
 
       expect(() => fireEvent.click(button)).not.toThrow();
     });
+
+    it('Não deve ser possível enivar outro forumlário enquanto outro está sendo enviado', () => {
+      const actions = {
+        postSignup: mockAsyncDelayed()
+      };
+
+      setupForSubmit({ actions });
+
+      fireEvent.click(button);
+
+      expect(actions.postSignup).toHaveBeenCalledTimes(1);
+    });
+
+    it('Deve mostrar spinner enqunto envia chamada a api', () => {
+      const actions = {
+        postSignup: mockAsyncDelayed()
+      };
+
+      const { queryByPlaceholderText } = setupForSubmit({ actions });
+      fireEvent.click(button);
+
+      const spinner = queryByPlaceholderText('loading...');
+      expect(spinner).toBeInTheDocument();
+    });
+
+    it('Deve esconder spinner depois que a chamada termina', async () => {
+      const actions = {
+        postSignup: mockAsyncDelayed()
+      };
+      const { queryByPlaceholderText } = setupForSubmit({ actions });
+      fireEvent.click(button);
+
+      await waitForDomChange();
+
+      const spinner = queryByPlaceholderText('loading...');
+      expect(spinner).not.toBeInTheDocument();
+    });
+
+    it('Deve esconder spinner depois que a chamada termina', async () => {
+      const actions = {
+        postSignup: mockAsyncDelayed()
+      };
+      const { queryByPlaceholderText } = setupForSubmit({ actions });
+      fireEvent.click(button);
+
+      await waitForDomChange();
+
+      const spinner = queryByPlaceholderText('loading...');
+      expect(spinner).not.toBeInTheDocument();
+    });
+
+    it('Deve esconder spinner depois que a chamada termina com erro', async () => {
+      const actions = {
+        postSignup: jest.fn().mockImplementation(() => {
+          return new Promise((res, rej) => {
+            setTimeout(() => {
+              rej({
+                res: { data: {} }
+              });
+            }, 300);
+          });
+        })
+      };
+      const { queryByText } = setupForSubmit({ actions });
+      fireEvent.click(button);
+
+      await waitForDomChange();
+
+      const spinner = queryByText('Loading...');
+      expect(spinner).not.toBeInTheDocument();
+    });
   });
 });
+
+console.error = () => {}

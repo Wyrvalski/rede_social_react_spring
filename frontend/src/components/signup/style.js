@@ -50,4 +50,9 @@ export const Form = styled.form`
   button:hover {
     cursor: pointer;
   }
+
+  button:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
 `;

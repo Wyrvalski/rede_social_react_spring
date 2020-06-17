@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 import { Box, Form } from './style';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-const SignUp = (props) => {  
+const SignUp = (props) => {
   const [formData, setformData] = useState({
     name: '',
     username: '',
     password: '',
     confirmPassword: ''
   });
+  const [loading, setLoading] = useState(false);
 
   const { name, username, password, confirmPassword } = formData;
 
@@ -22,10 +24,15 @@ const SignUp = (props) => {
       username: username,
       password: password
     };
-    e.preventDefault();
-    props.actions.postSignup(user);
+    // e.preventDefault();
+    setLoading(true);
+    props.actions.postSignup(user).then((res) => {
+      setLoading(false);
+    }).catch(error => {
+      setLoading(false);
+    });
   };
-
+  
   return (
     <Box m={3}>
       <h1>Cadastro</h1>
@@ -60,8 +67,17 @@ const SignUp = (props) => {
           onChange={(e) => onChangeFormData(e)}
         />
         <div>
-          <small>Já tem conta cadastrada? <Link to="/#">Logar</Link> </small>
-          <button onClick={(e) => onClick(e)}>Enviar</button>
+          <small>
+            Já tem conta cadastrada? <Link to='/#'>Logar</Link>{' '}
+          </small>
+
+          <button disabled={loading} onClick={(e) => onClick(e)}>
+            {' '}
+            {loading && (
+              <CircularProgress size={20} placeholder='loading...' />
+            )}{' '}
+            Enviar
+          </button>
         </div>
       </Form>
     </Box>
