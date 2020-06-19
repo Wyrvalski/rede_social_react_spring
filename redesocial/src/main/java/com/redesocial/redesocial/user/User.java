@@ -17,16 +17,17 @@ public class User {
     @GeneratedValue
     private long id;
 
-    @NotNull
-    @Size(min = 4, max= 100)
+    @NotNull(message = "Usuario nao pode ser nulo")
+    @Size(min = 4, max= 100, message = "Deve haver no minimo 4 characteres e no maximo 100")
+    @UniqueUsername
     private String username;
 
-    @NotNull
-    @Size(min = 4, max = 100)
+    @NotNull(message = "Nome nao pode ser nulo")
+    @Size(min = 4, max = 100, message = "Deve haver no minimo 4 characteres e no maximo 100")
     private String name;
 
-    @NotNull
-    @Size(min = 6, max = 100)
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$")
+    @NotNull(message = "Senha nao pode ser nula")
+    @Size(min = 6, max = 100, message = "Deve haver no minimo 6 characteres e no maximo 100")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "Deve haver letras maiusculas, minusculas e numeros")
     private String password;
 }

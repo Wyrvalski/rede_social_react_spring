@@ -2,6 +2,7 @@ package com.redesocial.redesocial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.redesocial.redesocial.error.ApiError;
 import com.redesocial.redesocial.shared.GenericResponse;
 import com.redesocial.redesocial.user.User;
 import com.redesocial.redesocial.user.UserRepository;
@@ -17,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -154,9 +156,87 @@ public class UserControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
+	@Test
+    public void cadastrarUsuario_quandoInvalido_receberErro() {
+	    User user = new User();
+	    ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+	    assertThat(response.getBody().getUrl()).isEqualTo(API_USER);
+    }
+
+	public void cadastrarUsuario_quandoInvalido_receberMensagemDeErro() {
+		User user = new User();
+		ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+		assertThat(response.getBody().getValidationErrors().size()).isEqualTo(3);
+	}
+
+	@Test
+	public void cadastrarUsuario_quandoUsuarioNulo_receberErro() {
+		User user = createUser();
+		user.setUsername(null);
+		ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+		Map<String, String> validationErrors = response.getBody().getValidationErrors();
+		assertThat(validationErrors.get("username")).isEqualTo("Usuario nao pode ser nulo");
+	}
+
+	@Test
+	public void cadastrarNome_quandoNomeNulo_receberErro() {
+		User user = createUser();
+		user.setName(null);
+		ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+		Map<String, String> validationErrors = response.getBody().getValidationErrors();
+		assertThat(validationErrors.get("name")).isEqualTo("Nome nao pode ser nulo");
+	}
+
+	@Test
+	public void cadastrarSenha_quandoSenhaNula_receberErro() {
+		User user = createUser();
+		user.setPassword(null);
+		ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+		Map<String, String> validationErrors = response.getBody().getValidationErrors();
+		assertThat(validationErrors.get("password")).isEqualTo("Senha nao pode ser nula");
+	}
+
+	@Test
+	public void cadastrarSenha_quandoSenhaForaDoTamanhoCerto_receberErro() {
+		User user = createUser();
+		user.setPassword("s4D");
+		ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+		Map<String, String> validationErrors = response.getBody().getValidationErrors();
+		assertThat(validationErrors.get("password")).isEqualTo("Deve haver no minimo 6 characteres e no maximo 100");
+	}
+
+	@Test
+	public void cadastrarSenha_quandoSenhaSemCaracteresMaiusculosMinusculosENumeros_receberErro() {
+		User user = createUser();
+		user.setPassword("abcdefsf");
+		ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+		Map<String, String> validationErrors = response.getBody().getValidationErrors();
+		assertThat(validationErrors.get("password")).isEqualTo("Deve haver letras maiusculas, minusculas e numeros");
+	}
+
+	@Test
+    public void cadastrarUsuario_quandoJaHouverUmUsuarioIgual_receberErro() {
+	    userRepository.save(createUser());
+	    User user = createUser();
+
+	    ResponseEntity<Object> response = postSignup(user, Object.class);
+	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+	@Test
+	public void cadastrarUsuario_quandoJaHouverUmUsuarioIgual_receberMenssagem() {
+		userRepository.save(createUser());
+		User user = createUser();
+
+		ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+		Map< String, String> validationErrors = response.getBody().getValidationErrors();
+		assertThat(validationErrors.get("username")).isEqualTo("Nome ja existe");
+	}
+
 	public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
 		return testRestTemplate.postForEntity(API_USER, request, response);
 	}
+
 
 	private User createUser() {
 		User user = new User();

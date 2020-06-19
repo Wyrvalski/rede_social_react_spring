@@ -24,7 +24,6 @@ const SignUp = (props) => {
       username: username,
       password: password
     };
-    // e.preventDefault();
     setLoading(true);
     props.actions.postSignup(user).then((res) => {
       setLoading(false);
